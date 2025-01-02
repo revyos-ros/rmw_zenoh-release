@@ -84,13 +84,9 @@ rmw_init(const rmw_init_options_t * options, rmw_context_t * context)
       }
     });
 
-  // Equivalent to rcutils_set_env_overwrite(ZENOH_LOG_ENV_VAR_STR, ZENOH_LOG_WARN_LEVEL_STR, 0)
-  // in modern ROS 2.
-  if (getenv(ZENOH_LOG_ENV_VAR_STR) == nullptr) {
-    if (!rcutils_set_env(ZENOH_LOG_ENV_VAR_STR, ZENOH_LOG_WARN_LEVEL_STR)) {
-      RMW_SET_ERROR_MSG("Error configuring Zenoh logging.");
-      return RMW_RET_ERROR;
-    }
+  if (!rcutils_set_env_overwrite(ZENOH_LOG_ENV_VAR_STR, ZENOH_LOG_WARN_LEVEL_STR, 0)) {
+    RMW_SET_ERROR_MSG("Error configuring Zenoh logging.");
+    return RMW_RET_ERROR;
   }
 
   // Enable the zenoh built-in logger

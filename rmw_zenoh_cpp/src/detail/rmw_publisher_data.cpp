@@ -60,12 +60,27 @@ std::shared_ptr<PublisherData> PublisherData::make(
     return nullptr;
   }
 
+  rcutils_allocator_t * allocator = &node->context->options.allocator;
+
+  const rosidl_type_hash_t * type_hash = type_support->get_type_hash_func(type_support);
   auto callbacks = static_cast<const message_type_support_callbacks_t *>(type_support->data);
   auto message_type_support = std::make_unique<MessageTypeSupport>(callbacks);
 
-  // Humble doesn't support type hash, but we leave it in place as a constant so we don't have to
-  // change the graph and liveliness token code.
-  const char * type_hash_c_str = "TypeHashNotSupported";
+  // Convert the type hash to a string so that it can be included in
+  // the keyexpr.
+  char * type_hash_c_str = nullptr;
+  rcutils_ret_t stringify_ret = rosidl_stringify_type_hash(
+    type_hash,
+    *allocator,
+    &type_hash_c_str);
+  if (RCUTILS_RET_BAD_ALLOC == stringify_ret) {
+    // rosidl_stringify_type_hash already set the error
+    return nullptr;
+  }
+  auto always_free_type_hash_c_str = rcpputils::make_scope_exit(
+    [&allocator, &type_hash_c_str]() {
+      allocator->deallocate(type_hash_c_str, allocator->state);
+    });
 
   std::size_t domain_id = node_info.domain_id_;
   auto entity = liveliness::Entity::make(
@@ -313,7 +328,7 @@ liveliness::TopicInfo PublisherData::topic_info() const
   return entity_->topic_info().value();
 }
 
-std::array<uint8_t, 16> PublisherData::copy_gid() const
+std::array<uint8_t, RMW_GID_STORAGE_SIZE> PublisherData::copy_gid() const
 {
   std::lock_guard<std::mutex> lock(mutex_);
   return entity_->copy_gid();
