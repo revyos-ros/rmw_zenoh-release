@@ -1,0 +1,12 @@
+Source: ros-jazzy-zenoh-cpp-vendor
+Section: misc
+Priority: optional
+Maintainer: Yadunund <yadunund@openrobotics.org>
+Build-Depends: debhelper (>= 9.0.0), cargo, clang, git, ros-jazzy-ament-cmake, ros-jazzy-ament-cmake-vendor-package, ros-jazzy-ros-workspace
+Homepage: 
+Standards-Version: 3.9.2
+
+Package: ros-jazzy-zenoh-cpp-vendor
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}, ros-jazzy-ros-workspace
+Description: Vendor pkg to install zenoh-cpp
