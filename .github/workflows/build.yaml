@@ -2,7 +2,7 @@ name: build
 on:
   pull_request:
   push:
-    branches: [ jazzy ]
+    branches: [ rolling ]
   workflow_dispatch:
   schedule:
     # Run every morning to detect flakiness and broken dependencies
@@ -17,8 +17,11 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          # Jazzy (binary)
-          - ROS_DISTRO: jazzy
+          # Rolling (source)
+          - ROS_DISTRO: rolling
+            BUILD_TYPE: source
+          # Rolling (binary)
+          - ROS_DISTRO: rolling
             BUILD_TYPE: binary
     env:
       ROS2_REPOS_FILE_URL: 'https://raw.githubusercontent.com/ros2/ros2/${{ matrix.ROS_DISTRO }}/ros2.repos'
