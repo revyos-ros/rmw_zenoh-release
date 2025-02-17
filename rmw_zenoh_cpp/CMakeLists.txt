@@ -21,7 +21,6 @@ find_package(rcutils REQUIRED)
 find_package(rosidl_typesupport_fastrtps_c REQUIRED)
 find_package(rosidl_typesupport_fastrtps_cpp REQUIRED)
 find_package(rmw REQUIRED)
-find_package(tracetools REQUIRED)
 find_package(zenoh_cpp_vendor REQUIRED)
 
 add_library(rmw_zenoh_cpp SHARED
@@ -68,7 +67,6 @@ target_link_libraries(rmw_zenoh_cpp
     rosidl_typesupport_fastrtps_c::rosidl_typesupport_fastrtps_c
     rosidl_typesupport_fastrtps_cpp::rosidl_typesupport_fastrtps_cpp
     rmw::rmw
-    tracetools::tracetools
     zenohcxx::zenohc
 )
 
@@ -96,7 +94,7 @@ if(BUILD_TESTING)
 
   set(_linter_excludes src/detail/ordered_hash.hpp src/detail/ordered_map.hpp)
 
-  ament_copyright(EXCLUDE src/detail/simplified_xxhash3.cpp src/detail/simplified_xxhash3.hpp)
+  ament_copyright(EXCLUDE src/detail/simplified_xxhash3.cpp src/detail/simplified_xxhash3.hpp ${_linter_excludes})
   ament_cpplint(EXCLUDE ${_linter_excludes})
   ament_lint_cmake()
   ament_uncrustify(EXCLUDE ${_linter_excludes})

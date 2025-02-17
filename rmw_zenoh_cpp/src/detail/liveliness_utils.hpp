@@ -65,7 +65,7 @@ struct TopicInfo
 };
 
 ///=============================================================================
-/// Retuns the keyexpr for liveliness subscription.
+/// Returns the keyexpr for liveliness subscription.
 std::string subscription_token(size_t domain_id);
 
 ///=============================================================================
@@ -96,7 +96,7 @@ enum class EntityType : uint8_t
  *  <namespace> - The ROS namespace for this entity.  If the namespace is absolute, this function will add in an _ for later parsing reasons.
  *  <nodename> - The ROS node name for this entity.
  *
- * For entities with topic infomation, the liveliness token keyexpr have additional fields:
+ * For entities with topic information, the liveliness token keyexpr have additional fields:
  *
  * <ADMIN_SPACE>/<domainid>/<zid>/<id>/<entity>/<namespace>/<nodename>/<topic_name>/<topic_type>/<topic_type_hash>/<topic_qos>
  *  <topic_name> - The ROS topic name for this entity.
@@ -173,7 +173,7 @@ public:
   // Two entities are equal if their keyexpr_hash are equal.
   bool operator==(const Entity & other) const;
 
-  std::array<uint8_t, RMW_GID_STORAGE_SIZE> copy_gid() const;
+  std::array<uint8_t, 16> copy_gid() const;
 
 private:
   Entity(
@@ -192,7 +192,7 @@ private:
   NodeInfo node_info_;
   std::optional<TopicInfo> topic_info_;
   std::string liveliness_keyexpr_;
-  std::array<uint8_t, RMW_GID_STORAGE_SIZE> gid_{};
+  std::array<uint8_t, 16> gid_{};
 };
 
 ///=============================================================================
@@ -235,7 +235,7 @@ std::optional<rmw_qos_profile_t> keyexpr_to_qos(const std::string & keyexpr);
 }  // namespace liveliness
 
 ///=============================================================================
-size_t hash_gid(const std::array<uint8_t, RMW_GID_STORAGE_SIZE> gid);
+size_t hash_gid(const std::array<uint8_t, 16> gid);
 }  // namespace rmw_zenoh_cpp
 
 ///=============================================================================

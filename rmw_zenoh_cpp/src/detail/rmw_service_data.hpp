@@ -49,7 +49,6 @@ public:
   static std::shared_ptr<ServiceData> make(
     std::shared_ptr<zenoh::Session> session,
     const rmw_node_t * const node,
-    const rmw_service_t * rmw_service,
     liveliness::NodeInfo node_info,
     std::size_t node_id,
     std::size_t service_id,
@@ -99,7 +98,6 @@ private:
   // Constructor.
   ServiceData(
     const rmw_node_t * rmw_node,
-    const rmw_service_t * rmw_service,
     std::shared_ptr<liveliness::Entity> entity,
     std::shared_ptr<zenoh::Session> session,
     const void * request_type_support_impl,
@@ -111,8 +109,6 @@ private:
   mutable std::mutex mutex_;
   // The parent node.
   const rmw_node_t * rmw_node_;
-  // The rmw service.
-  const rmw_service_t * rmw_service_;
   // The Entity generated for the service.
   std::shared_ptr<liveliness::Entity> entity_;
 

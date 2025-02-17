@@ -100,8 +100,8 @@ public:
       constexpr int64_t ticks_between_print(std::chrono::milliseconds(1000) / sleep_time);
       do {
         zenoh::ZResult result;
-        this->session_->get_routers_z_id(&result);
-        if (result == Z_OK) {
+        const auto zids = this->session_->get_routers_z_id(&result);
+        if (result == Z_OK && !zids.empty()) {
           break;
         }
         if ((connection_attempts % ticks_between_print) == 0) {
@@ -111,6 +111,15 @@ public:
             "Have you started a router with `ros2 run rmw_zenoh_cpp rmw_zenohd`?");
         }
         if (++connection_attempts >= configured_connection_attempts.value()) {
+          RMW_ZENOH_LOG_WARN_NAMED(
+            "rmw_zenoh_cpp",
+            "Unable to connect to a Zenoh router after %zu attempt(s). "
+            "Please ensure that a Zenoh router is running and can be reached. "
+            "You may increase the number of attempts to check for a router by "
+            "setting the ZENOH_ROUTER_CHECK_ATTEMPTS environment variable. "
+            "Proceeding with initialization but other peers will not discover "
+            "or receive data from peers in this session until a router is started.",
+            configured_connection_attempts.value());
           break;
         }
         std::this_thread::sleep_for(sleep_time);

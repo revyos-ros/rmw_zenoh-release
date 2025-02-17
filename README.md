@@ -1,7 +1,7 @@
 # rmw_zenoh
 
-[![build](https://github.com/ros2/rmw_zenoh/actions/workflows/build.yaml/badge.svg)](https://github.com/ros2/rmw_zenoh/actions/workflows/build.yaml)
-[![style](https://github.com/ros2/rmw_zenoh/actions/workflows/style.yaml/badge.svg)](https://github.com/ros2/rmw_zenoh/actions/workflows/style.yaml)
+[![build](https://github.com/ros2/rmw_zenoh/actions/workflows/build.yaml/badge.svg?branch=humble)](https://github.com/ros2/rmw_zenoh/actions/workflows/build.yaml)
+[![style](https://github.com/ros2/rmw_zenoh/actions/workflows/style.yaml/badge.svg?branch=humble)](https://github.com/ros2/rmw_zenoh/actions/workflows/style.yaml)
 
 A ROS 2 RMW implementation based on Zenoh that is written using the zenoh-cpp bindings.
 
@@ -83,11 +83,15 @@ The `ZENOH_ROUTER_CHECK_ATTEMPTS` environment variable can be used to configure 
 The behavior is explained in the table below.
 
 
-| ZENOH_ROUTER_CHECK_ATTEMPTS |                                                 Session behavior                                                 |
-|:---------------------------:|:----------------------------------------------------------------------------------------------------------------:|
-|            unset or 0           |                                                             Indefinitely waits for connection to a Zenoh router. |
-|             < 0            |                                                                                        Skips Zenoh router check. |
+| ZENOH_ROUTER_CHECK_ATTEMPTS |                                                 Session behavior                                                   |
+|:---------------------------:|:------------------------------------------------------------------------------------------------------------------:|
+|               0             |                                                             Indefinitely waits for connection to a Zenoh router.   |
+|             < 0             |                                                                                        Skips Zenoh router check.   |
 |             > 0             | Attempts to connect to a Zenoh router in `ZENOH_ROUTER_CHECK_ATTEMPTS` attempts with 1 second wait between checks. |
+|            unset            |                                                                    Equivalent to `1`: the check is made only once. |
+
+If after the configured number of attempts the Node is still not connected to a `Zenoh router`, the initialisation goes on anyway.  
+If a `Zenoh router` is started after initialization phase, the Node will automatically connect to it, and autoconnect to other Nodes if gossip scouting is enabled (true with default configuratiuon).
 
 ### Session and Router configs
 `rmw_zenoh` relies on separate configurations files to configure the `Zenoh router` and `Zenoh session` respectively.
@@ -112,7 +116,7 @@ To bridge communications across two hosts, the `Zenoh router` configuration for 
 This is done by specifying an endpoint in host's `Zenoh router` configuration file to as seen below.
 In this example, the `Zenoh router` will connect to the `Zenoh router` running on a second host with IP address `192.168.1.1` and port `7447`.
 
-```json
+```json5
 {
   connect: {
     endpoints: ["tcp/192.168.1.1:7447"],

@@ -40,15 +40,12 @@
 #include "rmw/get_topic_endpoint_info.h"
 #include "rmw/impl/cpp/macros.hpp"
 
-#include "tracetools/tracetools.h"
-
 namespace rmw_zenoh_cpp
 {
 ///=============================================================================
 std::shared_ptr<ServiceData> ServiceData::make(
   std::shared_ptr<zenoh::Session> session,
   const rmw_node_t * const node,
-  const rmw_service_t * rmw_service,
   liveliness::NodeInfo node_info,
   std::size_t node_id,
   std::size_t service_id,
@@ -65,9 +62,6 @@ std::shared_ptr<ServiceData> ServiceData::make(
     return nullptr;
   }
 
-  rcutils_allocator_t * allocator = &node->context->options.allocator;
-
-  const rosidl_type_hash_t * type_hash = type_support->get_type_hash_func(type_support);
   auto service_members = static_cast<const service_type_support_callbacks_t *>(type_support->data);
   auto request_members = static_cast<const message_type_support_callbacks_t *>(
     service_members->request_members_->data);
@@ -91,20 +85,9 @@ std::shared_ptr<ServiceData> ServiceData::make(
     return nullptr;
   }
 
-  // Convert the type hash to a string so that it can be included in the keyexpr.
-  char * type_hash_c_str = nullptr;
-  rcutils_ret_t stringify_ret = rosidl_stringify_type_hash(
-    type_hash,
-    *allocator,
-    &type_hash_c_str);
-  if (RCUTILS_RET_BAD_ALLOC == stringify_ret) {
-    // rosidl_stringify_type_hash already set the error
-    return nullptr;
-  }
-  auto free_type_hash_c_str = rcpputils::make_scope_exit(
-    [&allocator, &type_hash_c_str]() {
-      allocator->deallocate(type_hash_c_str, allocator->state);
-    });
+  // Humble doesn't support type hash, but we leave it in place as a constant so we don't have to
+  // change the graph and liveliness token code.
+  const char * type_hash_c_str = "TypeHashNotSupported";
 
   std::size_t domain_id = node_info.domain_id_;
   auto entity = liveliness::Entity::make(
@@ -131,7 +114,6 @@ std::shared_ptr<ServiceData> ServiceData::make(
   auto service_data = std::shared_ptr<ServiceData>(
     new ServiceData{
       node,
-      rmw_service,
       std::move(entity),
       session,
       request_members,
@@ -193,7 +175,6 @@ std::shared_ptr<ServiceData> ServiceData::make(
 ///=============================================================================
 ServiceData::ServiceData(
   const rmw_node_t * rmw_node,
-  const rmw_service_t * rmw_service,
   std::shared_ptr<liveliness::Entity> entity,
   std::shared_ptr<zenoh::Session> session,
   const void * request_type_support_impl,
@@ -201,7 +182,6 @@ ServiceData::ServiceData(
   std::unique_ptr<RequestTypeSupport> request_type_support,
   std::unique_ptr<ResponseTypeSupport> response_type_support)
 : rmw_node_(rmw_node),
-  rmw_service_(rmw_service),
   entity_(std::move(entity)),
   sess_(std::move(session)),
   request_type_support_impl_(request_type_support_impl),
@@ -335,8 +315,8 @@ rmw_ret_t ServiceData::take_request(
     return RMW_RET_ERROR;
   }
 
-  std::array<uint8_t, RMW_GID_STORAGE_SIZE> writer_guid = attachment.copy_gid();
-  memcpy(request_header->request_id.writer_guid, writer_guid.data(), RMW_GID_STORAGE_SIZE);
+  std::array<uint8_t, 16> writer_guid = attachment.copy_gid();
+  memcpy(request_header->request_id.writer_guid, writer_guid.data(), 16);
 
   request_header->source_timestamp = attachment.source_timestamp();
   if (request_header->source_timestamp < 0) {
@@ -380,8 +360,8 @@ rmw_ret_t ServiceData::send_response(
     return RMW_RET_OK;
   }
 
-  std::array<uint8_t, RMW_GID_STORAGE_SIZE> writer_guid;
-  memcpy(writer_guid.data(), request_id->writer_guid, RMW_GID_STORAGE_SIZE);
+  std::array<uint8_t, 16> writer_guid;
+  memcpy(writer_guid.data(), request_id->writer_guid, 16);
 
   // Create the queryable payload
   const size_t hash = hash_gid(writer_guid);
@@ -439,11 +419,11 @@ rmw_ret_t ServiceData::send_response(
 
   const zenoh::Query & loaned_query = query->get_query();
   zenoh::Query::ReplyOptions options = zenoh::Query::ReplyOptions::create_default();
-  std::array<uint8_t, RMW_GID_STORAGE_SIZE> writer_gid;
-  memcpy(writer_gid.data(), request_id->writer_guid, RMW_GID_STORAGE_SIZE);
-  int64_t source_timestamp = rmw_zenoh_cpp::get_system_time_in_ns();
-  options.attachment = rmw_zenoh_cpp::AttachmentData(
-    request_id->sequence_number, source_timestamp, writer_gid).serialize_to_zbytes();
+  std::array<uint8_t, 16> writer_gid;
+  memcpy(writer_gid.data(), request_id->writer_guid, 16);
+  options.attachment = create_map_and_set_sequence_num(
+    request_id->sequence_number,
+    writer_gid);
 
   std::vector<uint8_t> raw_bytes(
     reinterpret_cast<const uint8_t *>(response_bytes),
@@ -457,13 +437,6 @@ rmw_ret_t ServiceData::send_response(
     return RMW_RET_ERROR;
   }
 
-  TRACETOOLS_TRACEPOINT(
-    rmw_send_response,
-    static_cast<const void *>(rmw_service_),
-    static_cast<const void *>(ros_response),
-    request_id->writer_guid,
-    request_id->sequence_number,
-    source_timestamp);
   loaned_query.reply(service_ke, std::move(payload), std::move(options), &result);
   if (result != Z_OK) {
     RMW_SET_ERROR_MSG("unable to reply");
