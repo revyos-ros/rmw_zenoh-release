@@ -1,0 +1,23 @@
+ros-humble-rmw-zenoh-cpp (0.1.1-1jammy) jammy; urgency=high
+
+  * Bump Zenoh to commit id e4ea6f0 (1.2.0 + few commits) (#449 <https://github.com/ros2/rmw_zenoh/issues/449>)
+  * Inform users that peers will not discover and communicate with one another until the router is started (#445 <https://github.com/ros2/rmw_zenoh/issues/445>)
+  * Clear the error after rmw_serialized_message_resize() (#437 <https://github.com/ros2/rmw_zenoh/issues/437>)
+  * Fix ZENOH_ROUTER_CHECK_ATTEMPTS which was not respected (#429 <https://github.com/ros2/rmw_zenoh/issues/429>)
+  * fix: use the default destructor to drop the member Payload (#421 <https://github.com/ros2/rmw_zenoh/issues/421>)
+  * Remove gid_hash_ from AttachmentData (#418 <https://github.com/ros2/rmw_zenoh/issues/418>)
+  * Sync the config with the default config in Zenoh. (#414 <https://github.com/ros2/rmw_zenoh/issues/414>)
+  * fix: check the context validity before accessing the session (#407 <https://github.com/ros2/rmw_zenoh/issues/407>)
+  * Fix wan't typo (#402 <https://github.com/ros2/rmw_zenoh/issues/402>)
+  * Contributors: Alejandro Hernández Cordero, ChenYing Kuo (CY), Chris Lalancette, Julien Enoch, Mahmoud Mazouz, Tim Clephas, Yadunund, Yuyuan Yuan
+
+ -- Yadunund <yadunund@openrobotics.org>  Mon, 03 Feb 2025 16:00:00 -0000
+
+ros-humble-rmw-zenoh-cpp (0.1.0-1jammy) jammy; urgency=high
+
+  * An alternative middleware for ROS 2 based on Zenoh.
+  * Contributors: Alejandro Hernández Cordero, Alex Day, Bernd Pfrommer, ChenYing Kuo (CY), Chris Lalancette, Christophe Bedard, CihatAltiparmak, Esteve Fernandez, Franco Cipollone, Geoffrey Biggs, Hans-Martin, James Mount, Julien Enoch, Morgan Quigley, Nate Koenig, Shivang Vijay, Yadunund, Yuyuan Yuan, methylDragon
+
+ -- Yadunund <yadunund@openrobotics.org>  Wed, 01 Jan 2025 16:00:00 -0000
+
+
