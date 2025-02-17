@@ -13,8 +13,15 @@
 
   /// Which endpoints to connect to. E.g. tcp/localhost:7447.
   /// By configuring the endpoints, it is possible to tell zenoh which router/peer to connect to at startup.
+  ///
   /// For TCP/UDP on Linux, it is possible additionally specify the interface to be connected to:
   /// E.g. tcp/192.168.0.1:7447#iface=eth0, for connect only if the IP address is reachable via the interface eth0
+  ///
+  /// It is also possible to specify a priority range and/or a reliability setting to be used on the link.
+  /// For example `tcp/localhost?prio=6-7;rel=0` assigns priorities "data_low" and "background" to the established link.
+  ///
+  /// For TCP and TLS links, it is possible to specify the TCP buffer sizes:
+  /// E.g. tcp/192.168.0.1:7447#so_sndbuf=65000;so_rcvbuf=65000
   connect: {
     /// timeout waiting for all endpoints connected (0: no retry, -1: infinite timeout)
     /// Accepts a single value (e.g. timeout_ms: 0)
@@ -54,8 +61,15 @@
   /// Which endpoints to listen on. E.g. tcp/0.0.0.0:7447.
   /// By configuring the endpoints, it is possible to tell zenoh which are the endpoints that other routers,
   /// peers, or client can use to establish a zenoh session.
+  ///
   /// For TCP/UDP on Linux, it is possible additionally specify the interface to be listened to:
   /// E.g. tcp/0.0.0.0:7447#iface=eth0, for listen connection only on eth0
+  ///
+  /// It is also possible to specify a priority range and/or a reliability setting to be used on the link.
+  /// For example `tcp/localhost?prio=6-7;rel=0` assigns priorities "data_low" and "background" to the established link.
+  ///
+  /// For TCP and TLS links, it is possible to specify the TCP buffer sizes:
+  /// E.g. tcp/192.168.0.1:7447#so_sndbuf=65000;so_rcvbuf=65000
   listen: {
     /// timeout waiting for all listen endpoints (0: no retry, -1: infinite timeout)
     /// Accepts a single value (e.g. timeout_ms: 0)
@@ -92,7 +106,18 @@
       period_increase_factor: 2,
     },
   },
-
+  /// Configure the session open behavior.
+  open: {
+    /// Configure the conditions to be met before session open returns.
+    return_conditions: {
+      /// Session open waits to connect to scouted peers and routers before returning.
+      /// When set to false, first publications and queries after session open from peers may be lost.
+      connect_scouted: true,
+      /// Session open waits to receive initial declares from connected peers before returning.
+      /// Setting to false may cause extra traffic at startup from peers.
+      declares: true,
+    },
+  },
   /// Configure the scouting mechanisms and their behaviours
   scouting: {
     /// In client mode, the period in milliseconds dedicated to scouting for a router before failing.
@@ -115,11 +140,11 @@
       /// Accepts a single value (e.g. autoconnect: ["router", "peer"])
       /// or different values for router, peer and client (e.g. autoconnect: { router: [], peer: ["router", "peer"] }).
       /// Each value is a list of: "peer", "router" and/or "client".
-      autoconnect: { router: [], peer: ["router", "peer"] },
+      autoconnect: { router: [], peer: ["router", "peer"], client: ["router"] },
       /// Whether or not to listen for scout messages on UDP multicast and reply to them.
       listen: true,
     },
-    /// The gossip scouting configuration.
+    /// The gossip scouting configuration. Note that instances in "client" mode do not participate in gossip.
     gossip: {
       /// Whether gossip scouting is enabled or not
       enabled: true,
@@ -129,10 +154,17 @@
       /// It mostly makes sense when using "linkstate" routing mode where all nodes in the subsystem don't have
       /// direct connectivity with each other.
       multihop: false,
+      /// Which type of Zenoh instances to send gossip messages to.
+      /// Accepts a single value (e.g. target: ["router", "peer"]) which applies whatever the configured "mode" is,
+      /// or different values for router or peer mode (e.g. target: { router: ["router", "peer"], peer: ["router"] }).
+      /// Each value is a list of "peer" and/or "router".
+      /// ROS setting: by default all peers rely on the router to discover each other. Thus configuring the peer to send gossip
+      ///               messages only to the router is sufficient and avoids unecessary traffic between Nodes at launch time.
+      target: { router: ["router", "peer"], peer: ["router"]},
       /// Which type of Zenoh instances to automatically establish sessions with upon discovery on gossip.
       /// Accepts a single value (e.g. autoconnect: ["router", "peer"])
-      /// or different values for router, peer and client (e.g. autoconnect: { router: [], peer: ["router", "peer"] }).
-      /// Each value is a list of: "peer", "router" and/or "client".
+      /// or different values for router or peer mode (e.g. autoconnect: { router: [], peer: ["router", "peer"] }).
+      /// Each value is a list of: "peer" and/or "router".
       autoconnect: { router: [], peer: ["router", "peer"] },
     },
   },
@@ -169,7 +201,36 @@
       /// The routing strategy to use in peers. ("peer_to_peer" or "linkstate").
       mode: "peer_to_peer",
     },
+    /// The interests-based routing configuration.
+    /// This configuration applies regardless of the mode (router, peer or client).
+    interests: {
+      /// The timeout to wait for incoming interests declarations in milliseconds.
+      /// The expiration of this timeout implies that the discovery protocol might be incomplete,
+      /// leading to potential loss of messages, queries or liveliness tokens.
+      timeout: 10000,
+    },
   },
+
+  //  /// Overwrite QoS options for Zenoh messages by key expression (ignores Zenoh API QoS config for overwritten values)
+  //  qos: {
+  //    /// Overwrite QoS options for PUT and DELETE messages
+  //    publication: [
+  //      {
+  //        /// PUT and DELETE messages on key expressions that are included by these key expressions
+  //        /// will have their QoS options overwritten by the given config.
+  //        key_exprs: ["demo/**", "example/key"],
+  //        /// Configurations that will be applied on the publisher.
+  //        /// Options that are supplied here will overwrite the configuration given in Zenoh API
+  //        config: {
+  //          congestion_control: "block",
+  //          priority: "data_high",
+  //          express: true,
+  //          reliability: "best_effort",
+  //          allowed_destination: "remote",
+  //        },
+  //      },
+  //    ],
+  //  },
 
   //  /// The declarations aggregation strategy.
   //  aggregation: {
@@ -212,6 +273,7 @@
   //       "messages": [
   //         "put", "delete", "declare_subscriber",
   //         "query", "reply", "declare_queryable",
+  //         "liveliness_token", "liveliness_query", "declare_liveliness_subscriber",
   //       ],
   //       "flows":["egress","ingress"],
   //       "permission": "allow",
@@ -296,12 +358,14 @@
   transport: {
     unicast: {
       /// Timeout in milliseconds when opening a link
+      open_timeout: 10000,
+      /// Timeout in milliseconds when accepting a link
       accept_timeout: 10000,
-      /// Maximum number of zenoh session in pending state while accepting
+      /// Maximum number of links in pending state while performing the handshake for accepting it
       accept_pending: 100,
-      /// Maximum number of sessions that can be simultaneously alive
+      /// Maximum number of transports that can be simultaneously alive for a single zenoh sessions
       max_sessions: 1000,
-      /// Maximum number of incoming links that are admitted per session
+      /// Maximum number of incoming links that are admitted per transport
       max_links: 1,
       /// Enables the LowLatency transport
       /// This option does not make LowLatency transport mandatory, the actual implementation of transport
@@ -383,14 +447,14 @@
           /// then amount of memory being allocated for each queue is SIZE_XXX * LINK_MTU.
           /// If qos is false, then only the DATA priority will be allocated.
           size: {
-            control: 1,
-            real_time: 1,
-            interactive_high: 1,
-            interactive_low: 1,
+            control: 2,
+            real_time: 2,
+            interactive_high: 2,
+            interactive_low: 2,
             data_high: 2,
-            data: 4,
-            data_low: 4,
-            background: 4,
+            data: 2,
+            data_low: 2,
+            background: 2,
           },
           /// Congestion occurs when the queue is empty (no available batch).
           congestion_control: {
@@ -398,6 +462,8 @@
             drop: {
               /// The maximum time in microseconds to wait for an available batch before dropping a droppable message if still no batch is available.
               wait_before_drop: 1000,
+              /// The maximum deadline limit for multi-fragment messages.
+              max_wait_before_drop_fragments: 50000,
             },
             /// Behavior pushing CongestionControl::Block messages to the queue.
             block: {
@@ -415,6 +481,12 @@
             enabled: true,
             /// The maximum time limit (in ms) a message should be retained for batching when back-pressure happens.
             time_limit: 1,
+          },
+          allocation: {
+            /// Mode for memory allocation of batches in the priority queues. 
+            /// - "init": batches are allocated at queue initialization time. 
+            /// - "lazy": batches are allocated when needed up to the maximum number of batches configured in the size configuration parameter.
+            mode: "lazy",
           },
         },
       },
@@ -450,10 +522,29 @@
         connect_certificate: null,
         // Whether or not to verify the matching between hostname/dns and certificate when connecting,
         // if set to false zenoh will disregard the common names of the certificates when verifying servers.
-        // This could be dangerous because your CA can have signed a server cert for foo.com, that's later being used to host a server at baz.com. If you wan't your
-        // ca to verify that the server at baz.com is actually baz.com, let this be true (default).
+        // This could be dangerous because your CA can have signed a server cert for foo.com, that's later being used to host a server at baz.com.
+        // If you want your ca to verify that the server at baz.com is actually baz.com, let this be true (default).
         verify_name_on_connect: true,
+        // Whether or not to close links when remote certificates expires.
+        // If set to true, links that require certificates (tls/quic) will automatically disconnect when the time of expiration of the remote certificate chain is reached
+        // note that mTLS (client authentication) is required for a listener to disconnect a client on expiration
+        close_link_on_expiration: false,
+        /// Optional configuration for TCP system buffers sizes for TLS links
+        ///
+        /// Configure TCP read buffer size (bytes)
+        // so_rcvbuf: 123456,
+        /// Configure TCP write buffer size (bytes)
+        // so_sndbuf: 123456,
       },
+    // // Configure optional TCP link specific parameters
+    // tcp: {
+    //   /// Optional configuration for TCP system buffers sizes for TCP links
+    //   ///
+    //   /// Configure TCP read buffer size (bytes)
+    //   // so_rcvbuf: 123456,
+    //   /// Configure TCP write buffer size (bytes)
+    //   // so_sndbuf: 123456,
+    // }
     },
     /// Shared memory configuration.
     /// NOTE: shared memory can be used only if zenoh is compiled with "shared-memory" feature, otherwise
