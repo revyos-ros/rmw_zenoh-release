@@ -17,9 +17,14 @@ find_package(ament_cmake_vendor_package REQUIRED)
 # when expanded.
 set(ZENOHC_CARGO_FLAGS "--no-default-features$<SEMICOLON>--features=shared-memory zenoh/transport_compression zenoh/transport_tcp zenoh/transport_tls")
 
+# Set VCS_VERSION to include latest changes from zenoh/zenoh-c/zenoh-cpp to benefit from :
+# - https://github.com/eclipse-zenoh/zenoh/pull/173 (Improve config to support priorities range in locators)
+# - https://github.com/eclipse-zenoh/zenoh/pull/1736, https://github.com/eclipse-zenoh/zenoh/pull/1735,
+#   https://github.com/eclipse-zenoh/zenoh/pull/1744, https://github.com/eclipse-zenoh/zenoh/pull/1749,
+#   https://github.com/eclipse-zenoh/zenoh/pull/1751 (Improve performance of a large number of peers)
 ament_vendor(zenoh_c_vendor
   VCS_URL https://github.com/eclipse-zenoh/zenoh-c.git
-  VCS_VERSION 57d5e4d31d9b38fef34d7bcad3d3e54869c4ce73
+  VCS_VERSION 5fce7fb1d397e016ad02a50bde4262007d755424
   CMAKE_ARGS
     "-DZENOHC_CARGO_FLAGS=${ZENOHC_CARGO_FLAGS}"
     "-DZENOHC_BUILD_WITH_UNSTABLE_API=TRUE"
@@ -28,11 +33,9 @@ ament_vendor(zenoh_c_vendor
 
 ament_export_dependencies(zenohc)
 
-# Set VCS_VERSION to include latest changes from zenoh-c to benefit from :
-# - https://github.com/eclipse-zenoh/zenoh-cpp/pull/342 (Fix include what you use)
 ament_vendor(zenoh_cpp_vendor
   VCS_URL https://github.com/eclipse-zenoh/zenoh-cpp
-  VCS_VERSION 964b64dc8b935a43147287199e7bb12da7b141e6
+  VCS_VERSION bd4d741c6c4fa6509d8d745e22c3c50b4306bd65
   CMAKE_ARGS
     -DZENOHCXX_ZENOHC=OFF
 )
