@@ -31,21 +31,21 @@ public:
   AttachmentData(
     const int64_t sequence_number,
     const int64_t source_timestamp,
-    const std::array<uint8_t, 16> source_gid);
+    const std::array<uint8_t, RMW_GID_STORAGE_SIZE> source_gid);
 
   explicit AttachmentData(const zenoh::Bytes & bytes);
   explicit AttachmentData(AttachmentData && data);
 
   int64_t sequence_number() const;
   int64_t source_timestamp() const;
-  std::array<uint8_t, 16> copy_gid() const;
+  std::array<uint8_t, RMW_GID_STORAGE_SIZE> copy_gid() const;
 
   zenoh::Bytes serialize_to_zbytes();
 
 private:
   int64_t sequence_number_;
   int64_t source_timestamp_;
-  std::array<uint8_t, 16> source_gid_;
+  std::array<uint8_t, RMW_GID_STORAGE_SIZE> source_gid_;
 };
 }  // namespace rmw_zenoh_cpp
 

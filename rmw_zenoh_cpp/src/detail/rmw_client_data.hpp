@@ -65,7 +65,7 @@ public:
   bool liveliness_is_valid() const;
 
   // Copy the GID of this ClientData into an rmw_gid_t.
-  std::array<uint8_t, 16> copy_gid() const;
+  std::array<uint8_t, RMW_GID_STORAGE_SIZE> copy_gid() const;
 
   // Add a new ZenohReply to the queue.
   void add_new_reply(std::unique_ptr<rmw_zenoh_cpp::ZenohReply> reply);
@@ -118,6 +118,7 @@ private:
   mutable std::recursive_mutex mutex_;
   // The parent node.
   const rmw_node_t * rmw_node_;
+  // The rmw client.
   const rmw_client_t * rmw_client_;
   // The Entity generated for the service.
   std::shared_ptr<liveliness::Entity> entity_;
