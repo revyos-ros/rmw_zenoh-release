@@ -1,0 +1,25 @@
+ros-jazzy-zenoh-cpp-vendor (0.2.2-1bookworm) bookworm; urgency=high
+
+  * Bump zenoh-c to 261493 and zenoh-cpp to 5dfb68c (#466 <https://github.com/ros2/rmw_zenoh/issues/466>)
+  * Bump Zenoh to commit id 3bbf6af (1.2.1 + few commits) (#461 <https://github.com/ros2/rmw_zenoh/issues/461>)
+  * Contributors: Julien Enoch
+
+ -- Yadunund <yadunund@openrobotics.org>  Wed, 19 Feb 2025 00:00:00 -0000
+
+ros-jazzy-zenoh-cpp-vendor (0.2.1-1bookworm) bookworm; urgency=high
+
+  * Bump Zenoh to commit id e4ea6f0 (1.2.0 + few commits) (#448 <https://github.com/ros2/rmw_zenoh/issues/448>)
+  * Bump zenoh-c and zenoh-cpp to 1.1.1 (#431 <https://github.com/ros2/rmw_zenoh/issues/431>)
+  * Update Zenoh version (#409 <https://github.com/ros2/rmw_zenoh/issues/409>)
+  * Contributors: ChenYing Kuo (CY), Julien Enoch, Yadunund, Yuyuan Yuan
+
+ -- Yadunund <yadunund@openrobotics.org>  Tue, 04 Feb 2025 00:00:00 -0000
+
+ros-jazzy-zenoh-cpp-vendor (0.2.0-1bookworm) bookworm; urgency=high
+
+  * Vendors zenoh-cpp for rmw_zenoh.
+  * Contributors: Alejandro Hernández Cordero, Chris Lalancette, Franco Cipollone, Julien Enoch, Yadunund, Yuyuan Yuan
+
+ -- Yadunund <yadunund@openrobotics.org>  Thu, 02 Jan 2025 00:00:00 -0000
+
+
