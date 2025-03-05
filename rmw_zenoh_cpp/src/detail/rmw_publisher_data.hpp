@@ -45,6 +45,7 @@ public:
   // Make a shared_ptr of PublisherData.
   static std::shared_ptr<PublisherData> make(
     std::shared_ptr<zenoh::Session> session,
+    const rmw_publisher_t * const rmw_publisher,
     const rmw_node_t * const node,
     liveliness::NodeInfo node_info,
     std::size_t node_id,
@@ -90,27 +91,27 @@ public:
 private:
   // Constructor.
   PublisherData(
+    const rmw_publisher_t * const rmw_publisher,
     const rmw_node_t * rmw_node,
     std::shared_ptr<liveliness::Entity> entity,
     std::shared_ptr<zenoh::Session> session,
-    zenoh::Publisher pub,
-    std::optional<zenoh::ext::PublicationCache> pub_cache,
+    zenoh::ext::AdvancedPublisher pub,
     zenoh::LivelinessToken token,
     const void * type_support_impl,
     std::unique_ptr<MessageTypeSupport> type_support);
 
   // Internal mutex.
   mutable std::mutex mutex_;
+  // The rmw publisher
+  const rmw_publisher_t * rmw_publisher_;
   // The parent node.
   const rmw_node_t * rmw_node_;
   // The Entity generated for the publisher.
   std::shared_ptr<liveliness::Entity> entity_;
   // A shared session.
   std::shared_ptr<zenoh::Session> sess_;
-  // An owned publisher.
-  zenoh::Publisher pub_;
-  // Optional publication cache when durability is transient_local.
-  std::optional<zenoh::ext::PublicationCache> pub_cache_;
+  // An owned AdvancedPublisher.
+  zenoh::ext::AdvancedPublisher pub_;
   // Liveliness token for the publisher.
   std::optional<zenoh::LivelinessToken> token_;
   // Type support fields
