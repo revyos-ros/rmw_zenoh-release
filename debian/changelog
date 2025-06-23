@@ -1,0 +1,50 @@
+ros-jazzy-zenoh-cpp-vendor (0.2.5-1noble) noble; urgency=high
+
+  * Bump Zenoh to 1.4.0 (#658 <https://github.com/ros2/rmw_zenoh/issues/658>)
+  * fix: pin rust toolchain to v1.75.0 (#635 <https://github.com/ros2/rmw_zenoh/issues/635>)
+  * fix: use the right commit to bump zenoh to v1.3.2 (#632 <https://github.com/ros2/rmw_zenoh/issues/632>)
+  * Contributors: Julien Enoch, Yadunund, Yuyuan Yuan
+
+ -- Yadunund <yadunund@openrobotics.org>  Wed, 18 Jun 2025 00:00:00 -0000
+
+ros-jazzy-zenoh-cpp-vendor (0.2.4-1noble) noble; urgency=high
+
+  * Bump Zenoh to v1.3.2 and improve e2e reliability with HeartbeatSporadic (#593 <https://github.com/ros2/rmw_zenoh/issues/593>)
+  * Contributors: Julien Enoch
+
+ -- Yadunund <yadunund@openrobotics.org>  Sun, 20 Apr 2025 00:00:00 -0000
+
+ros-jazzy-zenoh-cpp-vendor (0.2.3-1noble) noble; urgency=high
+
+  * Fix liveliness crash in debugg mode (#549 <https://github.com/ros2/rmw_zenoh/issues/549>)
+  * Bump zenoh-cpp to 2a127bb, zenoh-c to 3540a3c, and zenoh to f735bf5 (#503 <https://github.com/ros2/rmw_zenoh/issues/503>) (#511 <https://github.com/ros2/rmw_zenoh/issues/511>)
+  * Enable Zenoh UDP transport (#486 <https://github.com/ros2/rmw_zenoh/issues/486>) (#488 <https://github.com/ros2/rmw_zenoh/issues/488>)
+  * Contributors: Hugal31, Luca Cominardi, Yuyuan Yuan
+
+ -- Yadunund <yadunund@openrobotics.org>  Thu, 20 Mar 2025 00:00:00 -0000
+
+ros-jazzy-zenoh-cpp-vendor (0.2.2-1noble) noble; urgency=high
+
+  * Bump zenoh-c to 261493 and zenoh-cpp to 5dfb68c (#466 <https://github.com/ros2/rmw_zenoh/issues/466>)
+  * Bump Zenoh to commit id 3bbf6af (1.2.1 + few commits) (#461 <https://github.com/ros2/rmw_zenoh/issues/461>)
+  * Contributors: Julien Enoch
+
+ -- Yadunund <yadunund@openrobotics.org>  Wed, 19 Feb 2025 00:00:00 -0000
+
+ros-jazzy-zenoh-cpp-vendor (0.2.1-1noble) noble; urgency=high
+
+  * Bump Zenoh to commit id e4ea6f0 (1.2.0 + few commits) (#448 <https://github.com/ros2/rmw_zenoh/issues/448>)
+  * Bump zenoh-c and zenoh-cpp to 1.1.1 (#431 <https://github.com/ros2/rmw_zenoh/issues/431>)
+  * Update Zenoh version (#409 <https://github.com/ros2/rmw_zenoh/issues/409>)
+  * Contributors: ChenYing Kuo (CY), Julien Enoch, Yadunund, Yuyuan Yuan
+
+ -- Yadunund <yadunund@openrobotics.org>  Tue, 04 Feb 2025 00:00:00 -0000
+
+ros-jazzy-zenoh-cpp-vendor (0.2.0-1noble) noble; urgency=high
+
+  * Vendors zenoh-cpp for rmw_zenoh.
+  * Contributors: Alejandro Hernández Cordero, Chris Lalancette, Franco Cipollone, Julien Enoch, Yadunund, Yuyuan Yuan
+
+ -- Yadunund <yadunund@openrobotics.org>  Thu, 02 Jan 2025 00:00:00 -0000
+
+
