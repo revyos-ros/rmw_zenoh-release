@@ -1,0 +1,12 @@
+Source: ros-jazzy-zenoh-security-tools
+Section: misc
+Priority: optional
+Maintainer: Alejandro Hernanadez <alejandro@openrobotics.org>
+Build-Depends: debhelper (>= 9.0.0), nlohmann-json3-dev, ros-jazzy-ament-lint-auto <!nocheck>, ros-jazzy-ament-lint-common <!nocheck>, ros-jazzy-rcpputils, ros-jazzy-rcutils, ros-jazzy-rmw, ros-jazzy-rmw-dds-common, ros-jazzy-tinyxml2-vendor, ros-jazzy-zenoh-cpp-vendor, ros-jazzy-ros-workspace
+Homepage: 
+Standards-Version: 3.9.2
+
+Package: ros-jazzy-zenoh-security-tools
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}, ros-jazzy-rcpputils, ros-jazzy-rcutils, ros-jazzy-rmw, ros-jazzy-rmw-dds-common, ros-jazzy-tinyxml2-vendor, ros-jazzy-zenoh-cpp-vendor, ros-jazzy-ros-workspace
+Description: This package generates config files to enforce security with Zenoh
